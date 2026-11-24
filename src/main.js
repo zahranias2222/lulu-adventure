@@ -103,6 +103,7 @@ function showBubble(info) {
 function hideBubble() { BUB.classList.remove('on'); }
 const gk = (k) => { const p = cur(); const key = k + (p && p.gender === 'f' ? '_f' : '_m'); return lineText('ar_' + key) ? key : k; };
 async function say(key, { bubble = true, rate = 1 } = {}) {
+  if (Array.isArray(key)) return sayParts(key, { bubble, rate });
   const info = lineText(key); if (!info) return;
   if (bubble) showBubble(info);
   const c = CH[info.who]; A.speakingChar = c;
@@ -112,6 +113,29 @@ async function say(key, { bubble = true, rate = 1 } = {}) {
   if (bubble) setTimeout(() => { if (my === sayN) hideBubble(); }, 1600);
 }
 let sayN = 0;
+// a sequence of clips shown as one mixed bubble: Arabic text with the English word inline
+async function sayParts(keys, { bubble = true, rate = 1 } = {}) {
+  const infos = keys.map(k => [k, lineText(k)]).filter(x => x[1]);
+  if (!infos.length) return;
+  const my = ++sayN;
+  if (bubble) {
+    const c = CHAR_INFO[infos[0][1].who];
+    const body = h('p', { dir: 'rtl', class: 'ar mix' });
+    infos.forEach(([, i], j) => { if (j) body.append(' '); body.append(i.lang === 'en' ? h('bdi', { dir: 'ltr', class: 'en-w' }, i.text) : i.text); });
+    BUB.innerHTML = ''; BUB.append(h('img', { src: thumb('char', infos[0][1].who), alt: '' }), h('div', { class: 'b-body' }, h('b', { style: `color:${c.color}` }, c.ar), body));
+    BUB.classList.add('on');
+  }
+  for (const [k, i] of infos) {
+    if (my !== sayN) return;
+    const c = CH[i.who]; A.speakingChar = c;
+    await playClip(k, i.lang === 'en' ? Math.min(rate, 1) : 1);
+    if (A.speakingChar === c) A.speakingChar = null;
+  }
+  if (bubble) setTimeout(() => { if (my === sayN) hideBubble(); }, 1600);
+}
+// Arabic name of a word, in the host's voice
+const arName = (id, host = 'lulu') => 'ar_m_' + id + (host === 'lulu' ? '' : '_' + host);
+const wordAr = (id, host) => store.settings.arabic ? ['w_' + id, arName(id, host)] : ['w_' + id];
 const sayAr = (k, o) => say('ar_' + gk(k), o);
 
 // ================= confetti =================
@@ -251,8 +275,7 @@ const intro = guard(async function () {
   CH.lulu.lookAt(E.camera.position);
   const skip = btn('skip', 'تخطّي', () => { store.seenIntro = true; save(); profiles(); });
   UI.append(skip);
-  CH.lulu.play('wave'); await say('lulu_hello'); chk();
-  await say('ar_intro1'); chk();
+  CH.lulu.play('wave'); await say('ar_intro1'); chk();
   // words fly away: fruits vanish from trees
   await flyCamera(new THREE.Vector3(0, 13, st.z + 16), new THREE.Vector3(0, 0, -1), 2); chk();
   const g = s.userData.groves; const all = [];
@@ -451,7 +474,7 @@ function pickWords(w, n, avoid) {
   return out;
 }
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const praise = { lulu: ['lulu_great', 'lulu_well', 'lulu_amazing', 'lulu_did'], bibo: ['bibo_great', 'bibo_super', 'bibo_yes'], toota: ['toota_yay'], bondoq: ['bondoq_match', 'bondoq_great'] };
+const praise = { lulu: ['ar_p_lulu1', 'ar_p_lulu2', 'ar_p_lulu3'], bibo: ['ar_p_bibo1', 'ar_p_bibo2', 'ar_p_bibo3'], toota: ['ar_p_toota'], bondoq: ['ar_p_bondoq1', 'ar_p_bondoq2'] };
 const randOf = a => a[Math.floor(Math.random() * a.length)];
 function wordBanner(wd, sub) {
   const old = $('.word-banner'); if (old) old.remove();
@@ -482,18 +505,16 @@ const runStage = guard(async function (w, i) {
 async function stageMeet(ctx) {
   const { w, st, host, chk, p } = ctx;
   const setDots = stageTop(w, ctx.i, 10, { replay: ctx.replay });
-  host.play('wave'); await say('lulu_hello'); chk();
-  await sayAr('s1'); chk();
+  host.play('wave'); await sayAr('s1'); chk();
   const center = choiceSpots(st, 1)[0];
   let k = 0;
   for (const wd of w.words) {
     const c = makeChoice(wd.id, 1.25); c.position.copy(center); c.userData.baseY = center.y; c.scale.setScalar(.01); addObj(c);
     sfx('whoosh'); await tween(c.scale, { x: 1.25, y: 1.25, z: 1.25 }, .6, ease.back); chk();
     wordBanner(wd);
-    ctx.prompt = 'w_' + wd.id;
+    ctx.prompt = wordAr(wd.id);
     host.play('point');
-    await say('lulu_this'); chk(); await say('w_' + wd.id); chk();
-    if (store.settings.arabic) { await say('ar_m_' + wd.id); chk(); }
+    await say(['ar_lulu_this', ...wordAr(wd.id)]); chk();
     word(p, wd.id).heard++;
     // child taps the fruit to hear it again
     await glow(c); const hand = tapHint(c);
@@ -501,7 +522,7 @@ async function stageMeet(ctx) {
     await glow(c, false);
     sfx('right'); starPop(c.position.clone().add(new THREE.Vector3(0, .8, 0)));
     tween(c.rotation, { y: c.rotation.y + Math.PI * 2 }, .8, ease.out);
-    await say('w_' + wd.id, { rate: .95 }); chk();
+    await say(wordAr(wd.id), { rate: .95 }); chk();
     host.play('cheer');
     k++; setDots(k);
     await tween(c.scale, { x: .01, y: .01, z: .01 }, .35, ease.in); removeChoice(c); clearBanner();
@@ -511,7 +532,7 @@ async function stageMeet(ctx) {
   const targets = pickWords(w, 5);
   for (const t of targets) {
     const other = shuffle(w.words.map(x => x.id).filter(x => x !== t))[0];
-    await choiceRound(ctx, shuffle([t, other]), t, 'lulu_tap_' + t);
+    await choiceRound(ctx, shuffle([t, other]), t, ['ar_lulu_tap', 'w_' + t]);
     k++; setDots(k);
   }
 }
@@ -539,8 +560,7 @@ async function choiceRound(ctx, opts, target, promptKey, { showWord = false } = 
       starPop(tapped.position.clone().add(new THREE.Vector3(0, .6, 0)));
       host.play('cheer');
       const wd = ctx.w.words.find(x => x.id === target); const b = wordBanner(wd, true);
-      await say('w_' + target); chk();
-      await say(randOf(praise[host.id])); chk();
+      await say([...wordAr(target, host.id), randOf(praise[host.id])]); chk();
       // fruit flies to host
       const hp = host.root.position.clone().add(new THREE.Vector3(0, 1.4, 0));
       await tween(tapped.position, { x: hp.x, y: hp.y, z: hp.z }, .5, ease.inOut);
@@ -550,7 +570,7 @@ async function choiceRound(ctx, opts, target, promptKey, { showWord = false } = 
     tries++; ctx.err++; word(p, target).w++; if (ctx.sg.type === 'listen' || ctx.sg.type === 'meet') p.listen.w++;
     sfx('soft'); wobble(tapped); host.play('think');
     // say what they tapped (teaches), then encourage and repeat prompt
-    await say('w_' + tapped.userData.fruit); chk();
+    await say(wordAr(tapped.userData.fruit, host.id)); chk();
     if (tries === 1) { await say('ar_oops_' + host.id); chk(); }
     if (tries >= 2) { const right = objs.find(o => o.userData.fruit === target); glow(right); host.play('point'); await say('ar_help'); chk(); }
     await say(promptKey); chk();
@@ -561,12 +581,12 @@ async function choiceRound(ctx, opts, target, promptKey, { showWord = false } = 
 async function stageListen(ctx) {
   const { w, host, chk } = ctx;
   const setDots = stageTop(w, ctx.i, 8, { replay: ctx.replay });
-  host.play('wave'); await say('bibo_hi'); chk(); await sayAr('s2'); chk();
+  host.play('wave'); await sayAr('s2'); chk();
   const targets = pickWords(w, 8);
   for (let r = 0; r < 8; r++) {
     const t = targets[r], n = r < 4 ? 3 : 4;
     const opts = shuffle([t, ...shuffle(w.words.map(x => x.id).filter(x => x !== t)).slice(0, n - 1)]);
-    await choiceRound(ctx, opts, t, 'bibo_find_' + t);
+    await choiceRound(ctx, opts, t, ['ar_bibo_where', 'w_' + t]);
     setDots(r + 1);
   }
 }
@@ -575,7 +595,7 @@ async function stageListen(ctx) {
 async function stageCollect(ctx) {
   const { w, st, host, chk, p } = ctx;
   const setDots = stageTop(w, ctx.i, 4, { replay: ctx.replay });
-  host.play('jump'); await say('toota_hi'); chk(); await sayAr('s3'); chk();
+  host.play('jump'); await sayAr('s3'); chk();
   const land = !portrait();
   const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), -st.y);
   const bpos = ndcTo(land ? -.42 : -.05, land ? -.78 : -.82, ground);
@@ -583,7 +603,7 @@ async function stageCollect(ctx) {
   const counter = h('div', { class: 'counter' }); UI.append(counter);
   const tasks = [1, 2, 2, 3];
   const ids = pickWords(w, 4);
-  const nums = ['toota_one', 'toota_two', 'toota_three'];
+  const nums = [['toota_one', 'ar_toota_n1'], ['toota_two', 'ar_toota_n2'], ['toota_three', 'ar_toota_n3']];
   for (let r = 0; r < tasks.length; r++) {
     const need = tasks[r], target = ids[r];
     // scatter fruits on the ground: `need`+1 of target + others
@@ -602,7 +622,7 @@ async function stageCollect(ctx) {
       return g;
     });
     await wait(.4); chk();
-    ctx.prompt = `toota_c${need}_${target}`;
+    ctx.prompt = ['ar_toota_collect', `toota_c${need}_${target}`];
     counter.innerHTML = `<img src="${thumb('fruit', target)}" alt=""><b>0 / ${need}</b>`;
     await say(ctx.prompt); chk();
     let got = 0, wrong = 0;
@@ -622,13 +642,13 @@ async function stageCollect(ctx) {
       } else {
         wrong++; ctx.err++; word(p, target).w++;
         sfx('soft'); wobble(tapped); host.play('think');
-        await say('w_' + tapped.userData.fruit); chk();
+        await say(wordAr(tapped.userData.fruit, 'toota')); chk();
         if (wrong === 2) { left.filter(o => o.userData.fruit === target).forEach(o => tween(o.position, { y: o.position.y + .5 }, .3, ease.out).then(() => tween(o.position, { y: st.y }, .3, ease.bounce))); await say('ar_help'); chk(); }
         await say(ctx.prompt); chk();
       }
     }
     host.play('cheer'); sfx('right'); starPop(basket.position.clone().add(new THREE.Vector3(0, 1.2, 0)));
-    await say('toota_yay'); chk();
+    await say([...wordAr(target, 'toota'), 'ar_p_toota']); chk();
     objs.forEach(o => E.scene.remove(o));
     setDots(r + 1);
   }
@@ -639,7 +659,7 @@ async function stageCollect(ctx) {
 async function stageMatch(ctx) {
   const { w, st, host, chk, p } = ctx;
   const setDots = stageTop(w, ctx.i, 2, { replay: ctx.replay });
-  host.play('wave'); await say('bondoq_hi'); chk(); await sayAr('s4'); chk();
+  host.play('wave'); await sayAr('s4'); chk();
   const rounds = [3, 5];
   for (let r = 0; r < rounds.length; r++) {
     const ids = shuffle(w.words.map(x => x.id)).slice(0, rounds[r]);
@@ -659,11 +679,10 @@ async function stageMatch(ctx) {
           card.style.transform = `translate(${sp.x - cr.left - cr.width / 2}px, ${sp.y - cr.top - cr.height / 2 - 60}px) scale(.8)`;
           f.userData.onTap = null; popBubble(f); starPop(f.position.clone().add(new THREE.Vector3(0, .7, 0)));
           host.play('clap');
-          await say('w_' + id);
-          if (matched === ids.length) resolve(); else say(randOf(praise.bondoq));
+          if (matched === ids.length) { await say(wordAr(id, 'bondoq')); resolve(); } else await say([...wordAr(id, 'bondoq'), randOf(praise.bondoq)]);
         } else {
           ctx.err++; word(p, id).w++; sfx('soft'); wobble(f); card.classList.add('nope'); setTimeout(() => card.classList.remove('nope'), 500);
-          host.play('think'); await say('bondoq_hmm');
+          host.play('think'); await say('ar_oops_bondoq');
         }
       };
       shuffle(ids).forEach(id => {
@@ -678,7 +697,7 @@ async function stageMatch(ctx) {
     UI.append(cards);
     ctx.prompt = 'ar_' + gk('s4');
     await done; chk();
-    await say('bondoq_solved'); chk(); host.play('cheer');
+    await say('ar_bondoq_solved'); chk(); host.play('cheer');
     cards.remove(); objs.forEach(removeChoice); setDots(r + 1);
   }
 }
@@ -712,7 +731,7 @@ async function stageSpeak(ctx) {
   const useMic = !!dict && store.settings.mic;
   const lulu = CH.lulu; const lp = ndcTo(portrait() ? .55 : .72, portrait() ? -.78 : -.72, new THREE.Plane(new THREE.Vector3(0, 1, 0), -st.y));
   show(lulu, lp, faceCam(lp) * .7, portrait() ? .68 : 1); lulu.lookAt(E.camera.position);
-  host.play('wave'); await say('bibo_hi'); chk();
+  host.play('wave');
   await (useMic ? sayAr('s5') : say('ar_' + (cur()?.gender === 'f' ? 's5_nomic_f' : 's5_nomic'))); chk();
   const center = choiceSpots(st, 1, { y0: .12 })[0];
   let r = 0;
@@ -720,9 +739,8 @@ async function stageSpeak(ctx) {
     const c = makeChoice(wd.id, 1.15); c.position.copy(center); c.userData.baseY = center.y; c.scale.setScalar(.01); addObj(c);
     sfx('whoosh'); await tween(c.scale, { x: 1.15, y: 1.15, z: 1.15 }, .5, ease.back); chk();
     wordBanner(wd);
-    ctx.prompt = 'w_' + wd.id;
-    await say('w_' + wd.id); chk();
-    await say('bibo_say'); chk();
+    ctx.prompt = wordAr(wd.id, 'bibo');
+    await say([...wordAr(wd.id, 'bibo'), 'ar_' + gk('bibo_say')]); chk();
     let ok = false;
     for (let attempt = 0; attempt < 3 && !ok; attempt++) {
       const mic = btn('mic pulse', useMic ? `${ICON.mic}<span>اضغط وتكلّم</span>` : `${ICON.check}<span>قلتها!</span>`, null, 'ميكروفون');
@@ -740,12 +758,12 @@ async function stageSpeak(ctx) {
       if (!useMic) { ok = true; break; }
       p.speak.rec++;
       if (heard && heardOk(heard, wd.en)) { ok = true; p.speak.ok++; word(p, wd.id).saidOk++; word(p, wd.id).c++; }
-      else if (attempt < 2) { host.play('nod'); await say('bibo_nice'); chk(); await say('w_' + wd.id); chk(); }
+      else if (attempt < 2) { host.play('nod'); await say(['ar_bibo_nice', 'w_' + wd.id]); chk(); }
       else ok = true; // reward the effort after 3 tries
     }
     sfx('right'); popBubble(c); starPop(c.position.clone().add(new THREE.Vector3(0, .5, 0)));
     host.play('cheer'); lulu.play('clap');
-    await say(randOf(['bibo_perfect', 'bibo_super', 'bibo_great'])); chk();
+    await say(randOf(praise.bibo)); chk();
     removeChoice(c); clearBanner(); save();
     r++; setDots(r);
   }

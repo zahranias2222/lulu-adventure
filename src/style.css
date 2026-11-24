@@ -322,3 +322,5 @@ img.thumb { display: block; object-fit: contain; pointer-events: none; }
   #bubble img { width: 44px; height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) { .btn.pulse, .btn.mic.pulse, .hand svg { animation: none; } }
+#bubble p.mix { line-height: 1.5; }
+#bubble p.mix .en-w { font-size: 1.2em; color: #ff7a1f; font-weight: 800; unicode-bidi: isolate; }

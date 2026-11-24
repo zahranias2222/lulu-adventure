@@ -150,63 +150,63 @@
   ],
   "toota_c1_apple": [
    "toota",
-   "Collect one apple!"
+   "One apple!"
   ],
   "toota_c2_apple": [
    "toota",
-   "Collect two apples!"
+   "Two apples!"
   ],
   "toota_c3_apple": [
    "toota",
-   "Collect three apples!"
+   "Three apples!"
   ],
   "toota_c1_banana": [
    "toota",
-   "Collect one banana!"
+   "One banana!"
   ],
   "toota_c2_banana": [
    "toota",
-   "Collect two bananas!"
+   "/tˈu bənˈænəz!"
   ],
   "toota_c3_banana": [
    "toota",
-   "Collect three bananas!"
+   "Three bananas!"
   ],
   "toota_c1_orange": [
    "toota",
-   "Collect one orange!"
+   "One orange!"
   ],
   "toota_c2_orange": [
    "toota",
-   "Collect two oranges!"
+   "Two oranges!"
   ],
   "toota_c3_orange": [
    "toota",
-   "Collect three oranges!"
+   "Three oranges!"
   ],
   "toota_c1_strawberry": [
    "toota",
-   "Collect one strawberry!"
+   "One strawberry!"
   ],
   "toota_c2_strawberry": [
    "toota",
-   "Collect two strawberries!"
+   "Two strawberries!"
   ],
   "toota_c3_strawberry": [
    "toota",
-   "Collect three strawberries!"
+   "Three strawberries!"
   ],
   "toota_c1_grapes": [
    "toota",
-   "Collect one bunch of grapes!"
+   "One bunch of grapes!"
   ],
   "toota_c2_grapes": [
    "toota",
-   "Collect two bunches of grapes!"
+   "Two bunches of grapes!"
   ],
   "toota_c3_grapes": [
    "toota",
-   "Collect three bunches of grapes!"
+   "Three bunches of grapes!"
   ],
   "bondoq_hi": [
    "bondoq",
@@ -385,6 +385,146 @@
   "bye": [
    "lulu",
    "نشوفك بكرة في مغامرة جديدة!"
+  ],
+  "lulu_this": [
+   "lulu",
+   "شوف، هذي"
+  ],
+  "lulu_tap": [
+   "lulu",
+   "يلا نضغط على"
+  ],
+  "p_lulu1": [
+   "lulu",
+   "رائع!"
+  ],
+  "p_lulu2": [
+   "lulu",
+   "ممتاز!"
+  ],
+  "p_lulu3": [
+   "lulu",
+   "يا سلام عليك!"
+  ],
+  "bibo_where": [
+   "bibo",
+   "وين نلقى"
+  ],
+  "bibo_say_m": [
+   "bibo",
+   "دورك الحين! انطقها."
+  ],
+  "bibo_say_f": [
+   "bibo",
+   "دورك الحين! انطقيها."
+  ],
+  "bibo_nice": [
+   "bibo",
+   "قريب! نجرّب مرة ثانية."
+  ],
+  "p_bibo1": [
+   "bibo",
+   "صح عليك!"
+  ],
+  "p_bibo2": [
+   "bibo",
+   "رائع!"
+  ],
+  "p_bibo3": [
+   "bibo",
+   "ممتاز! نطقك حلو."
+  ],
+  "toota_collect": [
+   "toota",
+   "يلا نجمع"
+  ],
+  "toota_n1": [
+   "toota",
+   "واحد"
+  ],
+  "toota_n2": [
+   "toota",
+   "اثنين"
+  ],
+  "toota_n3": [
+   "toota",
+   "ثلاثة"
+  ],
+  "p_toota": [
+   "toota",
+   "ياي! عدّينا صح!"
+  ],
+  "p_bondoq1": [
+   "bondoq",
+   "تطابق ممتاز!"
+  ],
+  "p_bondoq2": [
+   "bondoq",
+   "فكرة ذكية!"
+  ],
+  "bondoq_solved": [
+   "bondoq",
+   "حلّينا اللغز!"
+  ],
+  "m_apple_bibo": [
+   "bibo",
+   "يعني تفاحة."
+  ],
+  "m_apple_toota": [
+   "toota",
+   "يعني تفاحة."
+  ],
+  "m_apple_bondoq": [
+   "bondoq",
+   "يعني تفاحة."
+  ],
+  "m_banana_bibo": [
+   "bibo",
+   "يعني موزة."
+  ],
+  "m_banana_toota": [
+   "toota",
+   "يعني موزة."
+  ],
+  "m_banana_bondoq": [
+   "bondoq",
+   "يعني موزة."
+  ],
+  "m_orange_bibo": [
+   "bibo",
+   "يعني برتقالة."
+  ],
+  "m_orange_toota": [
+   "toota",
+   "يعني برتقالة."
+  ],
+  "m_orange_bondoq": [
+   "bondoq",
+   "يعني برتقالة."
+  ],
+  "m_strawberry_bibo": [
+   "bibo",
+   "يعني فراولة."
+  ],
+  "m_strawberry_toota": [
+   "toota",
+   "يعني فراولة."
+  ],
+  "m_strawberry_bondoq": [
+   "bondoq",
+   "يعني فراولة."
+  ],
+  "m_grapes_bibo": [
+   "bibo",
+   "يعني عنب."
+  ],
+  "m_grapes_toota": [
+   "toota",
+   "يعني عنب."
+  ],
+  "m_grapes_bondoq": [
+   "bondoq",
+   "يعني عنب."
   ]
  }
 }

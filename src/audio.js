@@ -4,8 +4,8 @@ import LINES from './lines.json';
 export const A = { ctx: null, buffers: {}, music: null, musicVol: .5, sfxVol: .8, speaking: null, analyser: null, current: null };
 
 export function lineText(key) {
-  const en = LINES.en[key]; if (en) return { lang: 'en', who: en[0], text: en[1].replace(/^\//, '').replace('ɡɹˈAps', 'Grapes').replace('tˈu', 'Two').replace(/^([A-Za-z]+)\.$/, '$1') };
-  const ar = LINES.ar[key]; if (ar) return { lang: 'ar', who: ar[0], text: ar[1] };
+  const en = LINES.en[key]; if (en) return { lang: 'en', who: en[0], text: en[1].replace(/^\//, '').replace('ɡɹˈAps', 'Grapes').replace('tˈu', 'Two').replace('bənˈænəz', 'bananas').replace(/^([A-Za-z]+)\.$/, '$1') };
+  const ar = key.startsWith('ar_') && LINES.ar[key.slice(3)]; if (ar) return { lang: 'ar', who: ar[0], text: ar[1] };
   return null;
 }
 export function allClipNames() { return [...Object.keys(LINES.en), ...Object.keys(LINES.ar).map(k => 'ar_' + k)]; }
