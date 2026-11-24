@@ -45,7 +45,7 @@ export function initEngine(canvas) {
   });
 
   const loop = () => {
-    const dt = Math.min(E.clock.getDelta(), 0.05);
+    const dt = Math.min(E.clock.getDelta(), E.test ? 0.5 : 0.05) * (E.test || 1);
     E.t += dt;
     for (const u of [...E.updaters]) u(dt, E.t);
     stepTweens(dt);
@@ -55,11 +55,12 @@ export function initEngine(canvas) {
   requestAnimationFrame(loop);
 }
 
-function isShown(o) { while (o) { if (!o.visible) return false; o = o.parent; } return true; }
+function isShown(o) { let r = o; while (o) { if (!o.visible) return false; r = o; o = o.parent; } return r === E.scene; }
 
 export function pickable(obj, fn) { obj.userData.onTap = fn; if (!E.pickables.includes(obj)) E.pickables.push(obj); return obj; }
 export function unpick(obj) { E.pickables = E.pickables.filter(o => o !== obj); delete obj.userData.onTap; }
 export function clearPicks() { E.pickables.length = 0; }
+export function prunePicks() { E.pickables = E.pickables.filter(o => isShown(o)); }
 
 export const ease = {
   linear: t => t,

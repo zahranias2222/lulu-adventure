@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { E, initEngine, pickable, clearPicks, tween, wait, ease, flyCamera, setCamera, toScreen } from './engine.js';
+import { E, initEngine, pickable, clearPicks, prunePicks, tween, wait, ease, flyCamera, setCamera, toScreen } from './engine.js';
 import { buildFruitIsland, buildMap, setRestored, MAP_LAYOUT } from './worlds.js';
 import { makeCharacter, CHAR_INFO } from './characters.js';
 import * as P from './props.js';
@@ -35,7 +35,10 @@ function show(c, pos, ry = 0, scale = 1) { c.root.visible = true; c.root.positio
 const faceCam = (pos) => Math.atan2(E.camera.position.x - pos.x, E.camera.position.z - pos.z);
 const portrait = () => E.aspect < .9;
 
+let runObjs = [];
+function addObj(o) { E.scene.add(o); runObjs.push(o); return o; }
 function newRun(name) {
+  runObjs.forEach(o => o.parent && o.parent.remove(o)); runObjs = [];
   RUN++; screen = name; stopVoice(); A.speakingChar = null; clearPicks(); floaters.clear(); E.onFrame = null; E.onMiss = null; E.onResize = null;
   hideBubble(); UI.innerHTML = ''; TOP.innerHTML = ''; document.body.dataset.screen = name;
   const id = RUN; return () => { if (id !== RUN) throw ABORT; };
@@ -103,9 +106,12 @@ async function say(key, { bubble = true, rate = 1 } = {}) {
   const info = lineText(key); if (!info) return;
   if (bubble) showBubble(info);
   const c = CH[info.who]; A.speakingChar = c;
+  const my = ++sayN;
   await playClip(key, rate);
   if (A.speakingChar === c) A.speakingChar = null;
+  if (bubble) setTimeout(() => { if (my === sayN) hideBubble(); }, 1600);
 }
+let sayN = 0;
 const sayAr = (k, o) => say('ar_' + gk(k), o);
 
 // ================= confetti =================
@@ -128,7 +134,7 @@ function burst(pos, color = 0xffd84d, n = 14) {
   const g = new THREE.SphereGeometry(.07, 8, 6);
   for (let i = 0; i < n; i++) {
     const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: i % 3 ? color : 0xffffff, transparent: true }));
-    m.position.copy(pos); E.scene.add(m);
+    m.position.copy(pos); addObj(m);
     const d = new THREE.Vector3(Math.random() - .5, Math.random() * .8, Math.random() - .5).normalize().multiplyScalar(.8 + Math.random() * .8);
     const o = { k: 0 };
     tween(o, { k: 1 }, .7, ease.out, () => { m.position.copy(pos).addScaledVector(d, o.k); m.material.opacity = 1 - o.k; m.scale.setScalar(1 - o.k * .6); }).then(() => E.scene.remove(m));
@@ -136,7 +142,7 @@ function burst(pos, color = 0xffd84d, n = 14) {
 }
 function starPop(pos) {
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: starTex(), transparent: true, depthTest: false }));
-  s.position.copy(pos); s.scale.setScalar(.1); E.scene.add(s);
+  s.position.copy(pos); s.scale.setScalar(.1); addObj(s);
   const o = { k: 0 };
   tween(o, { k: 1 }, 1, ease.out, () => { s.scale.setScalar(.2 + Math.sin(o.k * Math.PI) * .9); s.position.y = pos.y + o.k * 1.2; s.material.opacity = 1 - Math.max(0, o.k - .6) / .4; s.material.rotation = o.k * 2; }).then(() => E.scene.remove(s));
 }
@@ -173,6 +179,7 @@ function ndcTo(nx, ny, plane) { E.camera.updateMatrixWorld(); _ray.setFromCamera
 
 // tap one of objects; resolves with object
 function waitTap(objs) {
+  prunePicks();
   return new Promise(res => {
     objs.forEach(o => pickable(o, (obj) => { res(obj); }));
   });
@@ -369,7 +376,7 @@ const worldDetail = guard(async function (w) {
   setRestored(s, restoredList());
   const st = s.userData.stage;
   const land = !portrait();
-  setCamera(land ? st.clone().add(new THREE.Vector3(3.2, 3.6, 10)) : st.clone().add(new THREE.Vector3(0, 5, 14)), land ? st.clone().add(new THREE.Vector3(3.4, 1.2, 0)) : st.clone().add(new THREE.Vector3(0, -1.5, 0)));
+  setCamera(land ? st.clone().add(new THREE.Vector3(3.2, 3.6, 10)) : st.clone().add(new THREE.Vector3(0, 4.6, 12.5)), land ? st.clone().add(new THREE.Vector3(3.4, 1.2, 0)) : st.clone().add(new THREE.Vector3(0, -2.4, 0)));
   E.camera.fov = land ? 42 : 55; E.camera.updateProjectionMatrix();
   show(CH.lulu, st.clone(), faceCam(st), 1.3); CH.lulu.lookAt(E.camera.position); CH.lulu.play('wave');
   const panel = h('div', { class: 'panel world' },
@@ -407,7 +414,7 @@ function stageCamera(st) {
 function hostSpot(st) {
   const land = !portrait();
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -st.y);
-  return ndcTo(land ? -.68 : -.55, land ? -.72 : -.78, plane);
+  return ndcTo(land ? -.68 : -.62, land ? -.72 : -.82, plane);
 }
 // positions for n choices in a plane in front of the stage
 function choiceSpots(st, n, { y0 = 0, rows } = {}) {
@@ -419,7 +426,7 @@ function choiceSpots(st, n, { y0 = 0, rows } = {}) {
     for (let i = 0; i < n; i++) out.push(ndcTo(n === 1 ? .3 : x0 + (x1 - x0) * i / (n - 1), .02 + y0 + (n > 3 ? (i % 2 ? -.12 : .1) : 0), plane));
   } else {
     const cols = n <= 2 ? n : 2, r = Math.ceil(n / cols);
-    for (let i = 0; i < n; i++) { const c = i % cols, rr = Math.floor(i / cols); const lastRowCount = (rr === r - 1) ? n - cols * (r - 1) : cols; const off = lastRowCount === 1 ? .5 : 0; out.push(ndcTo(cols === 1 ? .15 : -.25 + (c + off) * .65 + .1, .42 - rr * (r > 2 ? .3 : .38) + y0, plane)); }
+    for (let i = 0; i < n; i++) { const c = i % cols, rr = Math.floor(i / cols); const lastRowCount = (rr === r - 1) ? n - cols * (r - 1) : cols; const off = lastRowCount === 1 ? .5 : 0; out.push(ndcTo(cols === 1 ? .1 : -.42 + (c + off) * .84, .26 - rr * (r > 2 ? .27 : .34) + y0, plane)); }
   }
   return out;
 }
@@ -462,7 +469,7 @@ const runStage = guard(async function (w, i) {
   stageCamera(st);
   const host = CH[sg.host];
   const hp = hostSpot(st);
-  show(host, hp, faceCam(hp) * .7, portrait() ? .85 : 1); host.lookAt(E.camera.position);
+  show(host, hp, faceCam(hp) * .7, portrait() ? .58 : 1); host.lookAt(E.camera.position);
   const ctx = { w, i, sg, st, host, chk, err: 0, p, prompt: null };
   ctx.replay = () => { if (ctx.prompt) say(ctx.prompt); };
   const runner = { meet: stageMeet, listen: stageListen, collect: stageCollect, match: stageMatch, speak: stageSpeak }[sg.type];
@@ -480,7 +487,7 @@ async function stageMeet(ctx) {
   const center = choiceSpots(st, 1)[0];
   let k = 0;
   for (const wd of w.words) {
-    const c = makeChoice(wd.id, 1.25); c.position.copy(center); c.userData.baseY = center.y; c.scale.setScalar(.01); E.scene.add(c);
+    const c = makeChoice(wd.id, 1.25); c.position.copy(center); c.userData.baseY = center.y; c.scale.setScalar(.01); addObj(c);
     sfx('whoosh'); await tween(c.scale, { x: 1.25, y: 1.25, z: 1.25 }, .6, ease.back); chk();
     wordBanner(wd);
     ctx.prompt = 'w_' + wd.id;
@@ -519,7 +526,7 @@ function tapHint(obj) {
 async function choiceRound(ctx, opts, target, promptKey, { showWord = false } = {}) {
   const { st, host, chk, p } = ctx;
   const spots = choiceSpots(st, opts.length);
-  const objs = opts.map((id, j) => { const c = makeChoice(id, choiceScale()); c.position.copy(spots[j]); c.userData.baseY = spots[j].y; c.scale.setScalar(.01); E.scene.add(c); tween(c.scale, { x: choiceScale(), y: choiceScale(), z: choiceScale() }, .5, ease.back); return c; });
+  const objs = opts.map((id, j) => { const c = makeChoice(id, choiceScale()); c.position.copy(spots[j]); c.userData.baseY = spots[j].y; c.scale.setScalar(.01); addObj(c); tween(c.scale, { x: choiceScale(), y: choiceScale(), z: choiceScale() }, .5, ease.back); return c; });
   await wait(.35); chk();
   ctx.prompt = promptKey; await say(promptKey); chk();
   let tries = 0;
@@ -572,7 +579,7 @@ async function stageCollect(ctx) {
   const land = !portrait();
   const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), -st.y);
   const bpos = ndcTo(land ? -.42 : -.05, land ? -.78 : -.82, ground);
-  const basket = P.makeBasket(.8); basket.position.copy(bpos); E.scene.add(basket);
+  const basket = P.makeBasket(.8); basket.position.copy(bpos); addObj(basket);
   const counter = h('div', { class: 'counter' }); UI.append(counter);
   const tasks = [1, 2, 2, 3];
   const ids = pickWords(w, 4);
@@ -590,7 +597,7 @@ async function stageCollect(ctx) {
       const g = new THREE.Group(); g.userData.fruit = id;
       const f = P.makeFruit(id); f.scale.setScalar(land ? .75 : .7); f.position.y = .4; g.add(f);
       const hit = new THREE.Mesh(new THREE.SphereGeometry(.55, 8, 6), new THREE.MeshBasicMaterial({ visible: false })); hit.position.y = .4; g.add(hit);
-      g.position.copy(pos); g.rotation.y = Math.random() * 6; g.scale.setScalar(.01); E.scene.add(g);
+      g.position.copy(pos); g.rotation.y = Math.random() * 6; g.scale.setScalar(.01); addObj(g);
       tween(g.scale, { x: 1, y: 1, z: 1 }, .4 + j * .04, ease.back);
       return g;
     });
@@ -637,7 +644,7 @@ async function stageMatch(ctx) {
   for (let r = 0; r < rounds.length; r++) {
     const ids = shuffle(w.words.map(x => x.id)).slice(0, rounds[r]);
     const spots = choiceSpots(st, ids.length, { y0: portrait() ? .05 : .12 });
-    const objs = ids.map((id, j) => { const c = makeChoice(id, choiceScale() * .92); c.position.copy(spots[j]); c.userData.baseY = spots[j].y; E.scene.add(c); return c; });
+    const objs = ids.map((id, j) => { const c = makeChoice(id, choiceScale() * .92); c.position.copy(spots[j]); c.userData.baseY = spots[j].y; addObj(c); return c; });
     const cards = h('div', { class: 'cards' });
     let selected = null, selFruit = null, matched = 0;
     const done = new Promise(resolve => {
@@ -704,13 +711,13 @@ async function stageSpeak(ctx) {
   const setDots = stageTop(w, ctx.i, 5, { replay: ctx.replay });
   const useMic = !!dict && store.settings.mic;
   const lulu = CH.lulu; const lp = ndcTo(portrait() ? .55 : .72, portrait() ? -.78 : -.72, new THREE.Plane(new THREE.Vector3(0, 1, 0), -st.y));
-  show(lulu, lp, faceCam(lp) * .7, portrait() ? .85 : 1); lulu.lookAt(E.camera.position);
+  show(lulu, lp, faceCam(lp) * .7, portrait() ? .68 : 1); lulu.lookAt(E.camera.position);
   host.play('wave'); await say('bibo_hi'); chk();
   await (useMic ? sayAr('s5') : say('ar_' + (cur()?.gender === 'f' ? 's5_nomic_f' : 's5_nomic'))); chk();
   const center = choiceSpots(st, 1, { y0: .12 })[0];
   let r = 0;
   for (const wd of shuffle(w.words)) {
-    const c = makeChoice(wd.id, 1.15); c.position.copy(center); c.userData.baseY = center.y; c.scale.setScalar(.01); E.scene.add(c);
+    const c = makeChoice(wd.id, 1.15); c.position.copy(center); c.userData.baseY = center.y; c.scale.setScalar(.01); addObj(c);
     sfx('whoosh'); await tween(c.scale, { x: 1.15, y: 1.15, z: 1.15 }, .5, ease.back); chk();
     wordBanner(wd);
     ctx.prompt = 'w_' + wd.id;
@@ -792,7 +799,7 @@ const rewardScreen = guard(async function ({ w, i, stars, gift, newBadges, newCe
   UI.append(panel);
   await say('ar_stage_done'); chk();
   if (gift) {
-    const box = P.makeGift(); const bp = choiceSpots(st, 1, { y0: -.15 })[0]; box.position.copy(bp); box.position.y -= .6; box.scale.setScalar(.01); E.scene.add(box);
+    const box = P.makeGift(); const bp = choiceSpots(st, 1, { y0: -.32 })[0]; box.position.copy(bp); box.position.y -= .5; box.scale.setScalar(.01); addObj(box);
     await tween(box.scale, { x: 1.1, y: 1.1, z: 1.1 }, .6, ease.back); chk();
     const bob = (dt, t) => { box.rotation.y = Math.sin(t * 2) * .2; box.rotation.z = Math.sin(t * 9) * .03; }; floaters.add(bob);
     panel.querySelector('h1').textContent = 'صندوق مفاجآت! اضغط عليه';
@@ -801,9 +808,9 @@ const rewardScreen = guard(async function ({ w, i, stars, gift, newBadges, newCe
     await waitTap([box]); chk(); hand.remove(); floaters.delete(bob);
     sfx('box'); const lid = box.userData.lid;
     tween(lid.position, { y: 2.2, x: .8 }, .6, ease.out); tween(lid.rotation, { z: -1.2 }, .6, ease.out);
-    const item = P.makeAccessory(gift); item.position.copy(box.position).add(new THREE.Vector3(0, .6, 0)); item.scale.setScalar(.01); E.scene.add(item);
+    const item = P.makeAccessory(gift); item.position.copy(box.position).add(new THREE.Vector3(0, .6, 0)); item.scale.setScalar(.01); addObj(item);
     burst(item.position.clone(), 0xffd84d, 24);
-    await tween(item.position, { y: box.position.y + 2.2 }, .7, ease.back);
+    await tween(item.position, { y: box.position.y + 1.6 }, .7, ease.back);
     tween(item.scale, { x: 1.6, y: 1.6, z: 1.6 }, .6, ease.back);
     floaters.add((dt, t) => { item.rotation.y = t * 1.5; });
     panel.querySelector('h1').textContent = 'هدية جديدة: ' + P.ACCESSORIES[gift].ar;
@@ -815,7 +822,7 @@ const rewardScreen = guard(async function ({ w, i, stars, gift, newBadges, newCe
   else if (i + 1 < w.stages.length) row.append(btn('big orange', `${ICON.play}<span>المرحلة التالية</span>`, () => runStage(w, i + 1)));
   if (gift) row.append(btn('big teal', `${ICON.shirt}<span>البس لولو</span>`, () => wardrobe(gift)));
   row.append(btn('big ghost', `${ICON.map}<span>الجزيرة</span>`, () => worldDetail(w)));
-  panel.append(row);
+  row.classList.add('reward-row'); UI.append(row);
   if (newCert) { await wait(.5); chk(); await say('ar_world_done'); }
 });
 
@@ -854,7 +861,7 @@ const wardrobe = guard(async function (focusItem) {
   const land = !portrait();
   const focus = (id, fly = true) => {
     sel = id; const c = CH[id]; const pos = c.root.position;
-    const camPos = pos.clone().add(new THREE.Vector3(land ? -1.2 : 0, 1.7, land ? 4.6 : 6.2)), look = pos.clone().add(new THREE.Vector3(land ? -1.1 : 0, land ? 1.25 : .5, 0));
+    const camPos = pos.clone().add(new THREE.Vector3(land ? 1.3 : 0, land ? 1.7 : 1.4, land ? 4.6 : 9.4)), look = pos.clone().add(new THREE.Vector3(land ? 1.2 : 0, land ? 1.25 : -1.7, 0));
     E.camera.fov = land ? 40 : 52; E.camera.updateProjectionMatrix();
     if (fly) flyCamera(camPos, look, .8); else setCamera(camPos, look);
     c.play('spin');
@@ -1013,7 +1020,7 @@ setInterval(() => {
   }
 }, 15000);
 
-window.__lulu = { E, CH, runStage, WORLDS, store, worldMap, wardrobe, wordBag, achievements, parentDash, certificate, rewardScreen };
+window.__lulu = { E, A, CH, runStage, WORLDS, store, worldMap, wardrobe, wordBag, achievements, parentDash, certificate, rewardScreen };
 // first frame
 document.addEventListener('pointerdown', () => initAudio(), { once: true });
 start();

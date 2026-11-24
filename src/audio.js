@@ -4,7 +4,7 @@ import LINES from './lines.json';
 export const A = { ctx: null, buffers: {}, music: null, musicVol: .5, sfxVol: .8, speaking: null, analyser: null, current: null };
 
 export function lineText(key) {
-  const en = LINES.en[key]; if (en) return { lang: 'en', who: en[0], text: en[1].replace(/^\//, '').replace('ɡɹˈAps', 'Grapes').replace('tˈu', 'Two') };
+  const en = LINES.en[key]; if (en) return { lang: 'en', who: en[0], text: en[1].replace(/^\//, '').replace('ɡɹˈAps', 'Grapes').replace('tˈu', 'Two').replace(/^([A-Za-z]+)\.$/, '$1') };
   const ar = LINES.ar[key]; if (ar) return { lang: 'ar', who: ar[0], text: ar[1] };
   return null;
 }
@@ -40,17 +40,17 @@ export function voiceLevel() {
   return Math.min(1, Math.sqrt(s / A.data.length) * 5.5);
 }
 
-export function stopVoice() { if (A.current) { try { A.current.onended = null; A.current.stop(); } catch (e) {} A.current = null; } }
+export function stopVoice() { if (A.current) { const r = A.current._res; try { A.current.onended = null; A.current.stop(); } catch (e) {} A.current = null; duck(false); if (r) r(); } }
 
 // play a clip; resolves when finished
 export function playClip(name, rate = 1) {
   return new Promise(res => {
-    if (!A.ctx) return res();
+    if (!A.ctx || A.test) return A.test ? setTimeout(res, 120) : res();
     const go = () => {
       const buf = A.buffers[name]; if (!buf) return res();
       stopVoice();
       const src = A.ctx.createBufferSource(); src.buffer = buf; src.playbackRate.value = rate;
-      src.connect(A.voiceBus); A.current = src;
+      src.connect(A.voiceBus); A.current = src; src._res = res;
       duck(true);
       src.onended = () => { if (A.current === src) A.current = null; duck(false); res(); };
       src.start();
