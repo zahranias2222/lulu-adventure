@@ -1,0 +1,390 @@
+{
+ "en": {
+  "w_apple": [
+   "lulu",
+   "Apple."
+  ],
+  "w_banana": [
+   "lulu",
+   "Banana."
+  ],
+  "w_orange": [
+   "lulu",
+   "Orange."
+  ],
+  "w_strawberry": [
+   "lulu",
+   "Strawberry."
+  ],
+  "w_grapes": [
+   "lulu",
+   "/ɡɹˈAps."
+  ],
+  "lulu_hello": [
+   "lulu",
+   "Hello! I'm Lulu!"
+  ],
+  "lulu_play": [
+   "lulu",
+   "Let's play!"
+  ],
+  "lulu_great": [
+   "lulu",
+   "Great job!"
+  ],
+  "lulu_well": [
+   "lulu",
+   "Well done!"
+  ],
+  "lulu_did": [
+   "lulu",
+   "You did it!"
+  ],
+  "lulu_amazing": [
+   "lulu",
+   "Amazing!"
+  ],
+  "lulu_wow": [
+   "lulu",
+   "Wow!"
+  ],
+  "lulu_this": [
+   "lulu",
+   "This is"
+  ],
+  "lulu_tap_apple": [
+   "lulu",
+   "Tap the apple!"
+  ],
+  "lulu_tap_banana": [
+   "lulu",
+   "Tap the banana!"
+  ],
+  "lulu_tap_orange": [
+   "lulu",
+   "Tap the orange!"
+  ],
+  "lulu_tap_strawberry": [
+   "lulu",
+   "Tap the strawberry!"
+  ],
+  "lulu_tap_grapes": [
+   "lulu",
+   "Tap the grapes!"
+  ],
+  "bibo_hi": [
+   "bibo",
+   "Hi! I'm Bibo! Listen!"
+  ],
+  "bibo_great": [
+   "bibo",
+   "Great listening!"
+  ],
+  "bibo_super": [
+   "bibo",
+   "Super duper!"
+  ],
+  "bibo_yes": [
+   "bibo",
+   "Yes! That's right!"
+  ],
+  "bibo_again": [
+   "bibo",
+   "Listen again."
+  ],
+  "bibo_say": [
+   "bibo",
+   "Now you say it!"
+  ],
+  "bibo_nice": [
+   "bibo",
+   "Nice try! Say it again!"
+  ],
+  "bibo_perfect": [
+   "bibo",
+   "Perfect! Great talking!"
+  ],
+  "bibo_find_apple": [
+   "bibo",
+   "Find the apple!"
+  ],
+  "bibo_find_banana": [
+   "bibo",
+   "Find the banana!"
+  ],
+  "bibo_find_orange": [
+   "bibo",
+   "Find the orange!"
+  ],
+  "bibo_find_strawberry": [
+   "bibo",
+   "Find the strawberry!"
+  ],
+  "bibo_find_grapes": [
+   "bibo",
+   "Find the grapes!"
+  ],
+  "toota_hi": [
+   "toota",
+   "Hi! I'm Toota! Let's count!"
+  ],
+  "toota_one": [
+   "toota",
+   "One!"
+  ],
+  "toota_two": [
+   "toota",
+   "/tˈu!"
+  ],
+  "toota_three": [
+   "toota",
+   "Three!"
+  ],
+  "toota_yay": [
+   "toota",
+   "Yay! Good counting!"
+  ],
+  "toota_full": [
+   "toota",
+   "The basket is full!"
+  ],
+  "toota_c1_apple": [
+   "toota",
+   "Collect one apple!"
+  ],
+  "toota_c2_apple": [
+   "toota",
+   "Collect two apples!"
+  ],
+  "toota_c3_apple": [
+   "toota",
+   "Collect three apples!"
+  ],
+  "toota_c1_banana": [
+   "toota",
+   "Collect one banana!"
+  ],
+  "toota_c2_banana": [
+   "toota",
+   "Collect two bananas!"
+  ],
+  "toota_c3_banana": [
+   "toota",
+   "Collect three bananas!"
+  ],
+  "toota_c1_orange": [
+   "toota",
+   "Collect one orange!"
+  ],
+  "toota_c2_orange": [
+   "toota",
+   "Collect two oranges!"
+  ],
+  "toota_c3_orange": [
+   "toota",
+   "Collect three oranges!"
+  ],
+  "toota_c1_strawberry": [
+   "toota",
+   "Collect one strawberry!"
+  ],
+  "toota_c2_strawberry": [
+   "toota",
+   "Collect two strawberries!"
+  ],
+  "toota_c3_strawberry": [
+   "toota",
+   "Collect three strawberries!"
+  ],
+  "toota_c1_grapes": [
+   "toota",
+   "Collect one bunch of grapes!"
+  ],
+  "toota_c2_grapes": [
+   "toota",
+   "Collect two bunches of grapes!"
+  ],
+  "toota_c3_grapes": [
+   "toota",
+   "Collect three bunches of grapes!"
+  ],
+  "bondoq_hi": [
+   "bondoq",
+   "Hello! I'm Bondoq! Let's match!"
+  ],
+  "bondoq_match": [
+   "bondoq",
+   "Perfect match!"
+  ],
+  "bondoq_hmm": [
+   "bondoq",
+   "Hmm, let's think again."
+  ],
+  "bondoq_great": [
+   "bondoq",
+   "Great thinking!"
+  ],
+  "bondoq_solved": [
+   "bondoq",
+   "Puzzle solved!"
+  ]
+ },
+ "ar": {
+  "intro1": [
+   "lulu",
+   "مرحبا! أنا لولو. هذي جزيرة الكلمات."
+  ],
+  "intro2": [
+   "lulu",
+   "يا خسارة! الكلمات الإنجليزية اختفت من الجزيرة."
+  ],
+  "intro3_m": [
+   "lulu",
+   "تساعدني نرجّعها؟ يلا نبدأ المغامرة!"
+  ],
+  "intro3_f": [
+   "lulu",
+   "تساعديني نرجّعها؟ يلا نبدأ المغامرة!"
+  ],
+  "who": [
+   "lulu",
+   "مين بيلعب معي اليوم؟"
+  ],
+  "map_m": [
+   "lulu",
+   "اختر جزيرة الفواكه، ويلا نبدأ!"
+  ],
+  "map_f": [
+   "lulu",
+   "اختاري جزيرة الفواكه، ويلا نبدأ!"
+  ],
+  "locked": [
+   "lulu",
+   "هذا العالم يفتح بعدين. خلّنا نكمّل جزيرة الفواكه أول."
+  ],
+  "w1": [
+   "lulu",
+   "في جزيرة الفواكه، الفواكه ضاعت! خلّنا نرجّعها."
+  ],
+  "s1_m": [
+   "lulu",
+   "تعال نتعرّف على الفواكه. اسمع الكلمة وكرّرها."
+  ],
+  "s1_f": [
+   "lulu",
+   "تعالي نتعرّف على الفواكه. اسمعي الكلمة وكرّريها."
+  ],
+  "s1_quiz": [
+   "lulu",
+   "حلو! الحين نلعب لعبة صغيرة."
+  ],
+  "s2_m": [
+   "bibo",
+   "أنا بيبو! اسمع الكلمة، واضغط على الفاكهة الصحيحة."
+  ],
+  "s2_f": [
+   "bibo",
+   "أنا بيبو! اسمعي الكلمة، واضغطي على الفاكهة الصحيحة."
+  ],
+  "s3_m": [
+   "toota",
+   "أنا توتة! اجمع الفواكه في السلة، وعدّها معي."
+  ],
+  "s3_f": [
+   "toota",
+   "أنا توتة! اجمعي الفواكه في السلة، وعدّيها معي."
+  ],
+  "s4_m": [
+   "bondoq",
+   "أنا بندق! اضغط على الكلمة، وبعدين على صورتها."
+  ],
+  "s4_f": [
+   "bondoq",
+   "أنا بندق! اضغطي على الكلمة، وبعدين على صورتها."
+  ],
+  "s5_m": [
+   "bibo",
+   "دورك الحين! اضغط على المايك، وانطق الكلمة."
+  ],
+  "s5_f": [
+   "bibo",
+   "دورك الحين! اضغطي على المايك، وانطقي الكلمة."
+  ],
+  "s5_nomic": [
+   "bibo",
+   "انطق الكلمة بصوت عالي، وبعدين اضغط الزر الأخضر."
+  ],
+  "s5_nomic_f": [
+   "bibo",
+   "انطقي الكلمة بصوت عالي، وبعدين اضغطي الزر الأخضر."
+  ],
+  "m_apple": [
+   "lulu",
+   "يعني تفاحة."
+  ],
+  "m_banana": [
+   "lulu",
+   "يعني موزة."
+  ],
+  "m_orange": [
+   "lulu",
+   "يعني برتقالة."
+  ],
+  "m_strawberry": [
+   "lulu",
+   "يعني فراولة."
+  ],
+  "m_grapes": [
+   "lulu",
+   "يعني عنب."
+  ],
+  "oops_lulu": [
+   "lulu",
+   "ما عليه! نجرّب مرة ثانية."
+  ],
+  "oops_bibo": [
+   "bibo",
+   "قريب! نسمعها مرة ثانية."
+  ],
+  "oops_toota": [
+   "toota",
+   "ما عليه! نجرّب مرة ثانية."
+  ],
+  "oops_bondoq": [
+   "bondoq",
+   "ما عليه! نفكّر مرة ثانية."
+  ],
+  "help": [
+   "lulu",
+   "شوف! هذي هي."
+  ],
+  "stage_done": [
+   "lulu",
+   "رائع! خلّصنا المرحلة."
+  ],
+  "box": [
+   "lulu",
+   "صندوق مفاجآت! وش فيه يا ترى؟"
+  ],
+  "box_open": [
+   "lulu",
+   "واو! هدية جديدة لك."
+  ],
+  "world_done": [
+   "lulu",
+   "يا سلام! رجّعنا كل الفواكه للجزيرة. هذي شهادتك!"
+  ],
+  "wardrobe": [
+   "lulu",
+   "وش رايك نلبس شي حلو؟"
+  ],
+  "bag": [
+   "lulu",
+   "هذي حقيبة كلماتك. كل كلمة تعلّمتها موجودة هنا."
+  ],
+  "bye": [
+   "lulu",
+   "نشوفك بكرة في مغامرة جديدة!"
+  ]
+ }
+}

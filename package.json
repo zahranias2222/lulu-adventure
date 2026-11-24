@@ -1,0 +1,8 @@
+{
+  "name": "lulu-adventure",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Lulu's English Adventure - 3D English learning game for kids (Arabic/English)",
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": { "esbuild": "0.24.0", "three": "0.170.0" }
+}
